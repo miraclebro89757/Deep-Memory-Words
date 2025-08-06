@@ -7,6 +7,14 @@ export interface Story {
   length: string
   timestamp: number
   isFavorite: boolean
+  explanations?: WordExplanation[]
+}
+
+export interface WordExplanation {
+  word: string
+  chineseMeaning: string
+  pronunciation?: string
+  partOfSpeech?: string
 }
 
 export interface ApiConfig {
@@ -27,6 +35,29 @@ export interface StoryResponse {
   content: string
   success: boolean
   error?: string
+  explanations?: WordExplanation[]
+}
+
+// New types for word tracking
+export interface WordRecord {
+  id: string
+  word: string
+  timestamp: number
+  storyId?: string // Reference to the story if generated
+  searchCount: number
+  lastSearched: number
+}
+
+export interface WordHistory {
+  date: string // YYYY-MM-DD format
+  words: WordRecord[]
+}
+
+export interface WordStats {
+  totalWords: number
+  totalSearches: number
+  uniqueWords: number
+  mostSearchedWords: Array<{ word: string; count: number }>
 }
 
 export type StoryStyle = 'humorous' | 'fantasy' | 'adventure' | 'educational' | 'mystery' | 'romance'

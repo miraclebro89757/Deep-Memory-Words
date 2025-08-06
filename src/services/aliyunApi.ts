@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { StoryRequest, StoryResponse, ApiConfig } from '../types'
+import type { StoryRequest, StoryResponse, ApiConfig, WordExplanation } from '../types'
 
 class AliyunApiService {
   private config: ApiConfig | null = null
@@ -151,9 +151,13 @@ class AliyunApiService {
         throw new Error('API返回内容为空')
       }
 
+      // 解析故事内容和解释
+      const { storyContent, explanations } = this.parseStoryAndExplanations(content.trim())
+
       return {
-        content: content.trim(),
-        success: true
+        content: storyContent,
+        success: true,
+        explanations
       }
     } catch (error) {
       console.error('API调用失败:', error)
@@ -222,7 +226,12 @@ class AliyunApiService {
     const style = styleMap[request.style as keyof typeof styleMap] || '幽默'
     const length = lengthMap[request.length as keyof typeof lengthMap] || '中等'
 
-    return `请为单词/短语"${request.content}"生成一个${style}风格的${length}${language}故事，帮助记忆这个词汇。故事应该：
+    // 提取英文单词
+    const englishWords = request.content.split('\n').filter(word => 
+      /^[a-zA-Z\s]+$/.test(word.trim()) && word.trim().length > 0
+    )
+
+    let prompt = `请为单词/短语"${request.content}"生成一个${style}风格的${length}${language}故事，帮助记忆这个词汇。故事应该：
 1. 有趣且易于记忆
 2. 包含目标词汇的用法
 3. 符合${style}风格
@@ -230,6 +239,60 @@ class AliyunApiService {
 5. 用${language}编写
 
 请直接输出故事内容，不要包含任何解释或额外信息。`
+
+    // 如果有英文单词，添加解释要求
+    if (englishWords.length > 0 && request.language === 'zh') {
+      prompt += `
+
+另外，请为以下英文单词提供中文解释（包括词性、发音和中文含义）：
+${englishWords.map(word => word.trim()).join(', ')}
+
+请按以下格式提供解释：
+单词1: [词性] /发音/ - 中文含义
+单词2: [词性] /发音/ - 中文含义
+...`
+    }
+
+    return prompt
+  }
+
+  private parseStoryAndExplanations(content: string): { storyContent: string, explanations: WordExplanation[] } {
+    const lines = content.split('\n')
+    const storyLines: string[] = []
+    const explanations: WordExplanation[] = []
+    let inExplanationSection = false
+
+    for (const line of lines) {
+      const trimmedLine = line.trim()
+      
+      // 检查是否进入解释部分
+      if (trimmedLine.includes('单词') && trimmedLine.includes(':')) {
+        inExplanationSection = true
+      }
+      
+      if (inExplanationSection) {
+        // 解析解释行
+        const explanationMatch = trimmedLine.match(/^([a-zA-Z\s]+):\s*\[([^\]]+)\]\s*\/([^\/]+)\/\s*-\s*(.+)$/)
+        if (explanationMatch) {
+          explanations.push({
+            word: explanationMatch[1].trim(),
+            partOfSpeech: explanationMatch[2].trim(),
+            pronunciation: explanationMatch[3].trim(),
+            chineseMeaning: explanationMatch[4].trim()
+          })
+        }
+      } else {
+        // 故事内容
+        if (trimmedLine && !trimmedLine.startsWith('另外，请为以下英文单词')) {
+          storyLines.push(line)
+        }
+      }
+    }
+
+    return {
+      storyContent: storyLines.join('\n').trim(),
+      explanations
+    }
   }
 
   async testConnection(): Promise<boolean> {

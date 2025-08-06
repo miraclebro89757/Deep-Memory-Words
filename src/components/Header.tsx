@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Settings, BookOpen } from 'lucide-react'
+import { Settings, BookOpen, History } from 'lucide-react'
 
 const Header: React.FC = () => {
   return (
@@ -12,6 +12,13 @@ const Header: React.FC = () => {
             <span>单词记忆故事生成器</span>
           </Link>
           <nav className="flex items-center space-x-4">
+            <Link 
+              to="/history" 
+              className="flex items-center space-x-1 text-gray-600 hover:text-primary-600 transition-colors"
+            >
+              <History className="w-4 h-4" />
+              <span>学习历史</span>
+            </Link>
             <Link 
               to="/settings" 
               className="flex items-center space-x-1 text-gray-600 hover:text-primary-600 transition-colors"

@@ -1,17 +1,7 @@
 import React from 'react'
-import { Card, Empty, Spin } from 'antd'
-import { BookOpen, Star, Copy, Share2 } from 'lucide-react'
-
-interface Story {
-  id: string
-  content: string
-  originalText: string
-  style: string
-  language: string
-  length: string
-  timestamp: number
-  isFavorite: boolean
-}
+import { Card, Empty, Spin, Tag } from 'antd'
+import { BookOpen, Star, Copy, Share2, Info } from 'lucide-react'
+import type { Story } from '../types'
 
 interface StoryDisplayProps {
   stories: Story[]
@@ -100,6 +90,38 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({
                 {story.content}
               </p>
             </div>
+            
+            {/* 单词解释部分 */}
+            {story.explanations && story.explanations.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center mb-3">
+                  <Info className="w-4 h-4 text-blue-500 mr-2" />
+                  <h4 className="text-sm font-medium text-gray-700">单词解释</h4>
+                </div>
+                <div className="grid gap-2">
+                  {story.explanations.map((explanation, index) => (
+                    <div key={index} className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-blue-800">{explanation.word}</span>
+                        {explanation.partOfSpeech && (
+                          <Tag color="blue">
+                            {explanation.partOfSpeech}
+                          </Tag>
+                        )}
+                      </div>
+                      {explanation.pronunciation && (
+                        <div className="text-sm text-gray-600 mb-1">
+                          发音: /{explanation.pronunciation}/
+                        </div>
+                      )}
+                      <div className="text-gray-800">
+                        {explanation.chineseMeaning}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       ))}

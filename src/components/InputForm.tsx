@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Button, Select, Input, Space, Card } from 'antd'
-import { Wand2 } from 'lucide-react'
+import { Button, Select, Input, Space, Card, message } from 'antd'
+import { Wand2, Search } from 'lucide-react'
+import { useStoryStore } from '../stores/storyStore'
 
 const { TextArea } = Input
 const { Option } = Select
@@ -16,6 +17,7 @@ interface InputFormProps {
 }
 
 const InputForm: React.FC<InputFormProps> = ({ onSubmit, loading = false }) => {
+  const { recordWordSearch } = useStoryStore()
   const [formData, setFormData] = useState({
     content: '',
     style: 'humorous',
@@ -28,6 +30,17 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, loading = false }) => {
       return
     }
     onSubmit?.(formData)
+  }
+
+  const handleQuickSearch = () => {
+    if (!formData.content.trim()) {
+      message.warning('请输入要记录的单词')
+      return
+    }
+    
+    recordWordSearch(formData.content.trim())
+    message.success(`已记录单词 "${formData.content.trim()}"`)
+    setFormData({ ...formData, content: '' })
   }
 
   return (
@@ -95,7 +108,7 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, loading = false }) => {
           </div>
         </div>
 
-        <div className="text-center">
+        <div className="text-center space-x-4">
           <Button
             type="primary"
             size="large"
@@ -106,6 +119,15 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, loading = false }) => {
             className="btn-primary"
           >
             生成记忆故事
+          </Button>
+          <Button
+            type="default"
+            size="large"
+            icon={<Search className="w-4 h-4" />}
+            onClick={handleQuickSearch}
+            disabled={!formData.content.trim()}
+          >
+            仅记录单词
           </Button>
         </div>
       </div>

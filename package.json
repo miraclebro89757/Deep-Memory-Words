@@ -13,7 +13,7 @@
     "antd": "^5.12.5",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.2",
-    "lucide-react": "^0.294.0",
+    "lucide-react": "^0.536.0",
     "openai": "^5.11.0",
     "postcss": "^8.4.32",
     "react": "^18.2.0",

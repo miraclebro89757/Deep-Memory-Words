@@ -9,6 +9,7 @@ import StoryDisplay from './components/StoryDisplay'
 import ApiConfig from './components/ApiConfig'
 import ConfigTest from './components/ConfigTest'
 import ApiDebugger from './components/ApiDebugger'
+import WordHistory from './components/WordHistory'
 import { useStoryStore } from './stores/storyStore'
 import { aliyunApiService } from './services/aliyunApi'
 import { storageService } from './services/storageService'
@@ -102,6 +103,19 @@ function App() {
                   onCopy={handleCopy}
                   onShare={handleShare}
                 />
+              </div>
+            } />
+            <Route path="/history" element={
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-8">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    学习历史
+                  </h1>
+                  <p className="text-lg text-gray-600">
+                    查看您的单词学习记录和统计信息
+                  </p>
+                </div>
+                <WordHistory />
               </div>
             } />
             <Route path="/settings" element={
